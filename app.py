@@ -102,9 +102,19 @@ p, span, label, .stMarkdown, .stCaption {
 }
 
 .hero-title {
-    font-size: 3.2rem !important;
+    font-size: 4.5rem !important;
     font-weight: 700 !important;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+}
+
+.hero-desc {
+    font-size: 1.15rem !important;
 }
 
 .hero-underline {
@@ -184,13 +194,14 @@ def show_sidebar():
 # ---------- Welcome Page ----------
 def show_welcome_page():
     st.write("")
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.write("")
+    col1, col2, col3 = st.columns([1, 2.5, 1])
     with col2:
         st.markdown(
             "<p class='hero-title' style='text-align:center; margin-bottom:0;'>📚 BookSage</p>"
             "<div class='hero-underline'></div>"
-            "<p style='text-align:center; font-size:1.2rem; font-weight:600; margin-bottom:4px;'>Your personal book recommendation companion</p>"
-            "<p style='text-align:center; color:#A9B8A5; font-size:1rem; max-width:480px; margin:0 auto;'>"
+            "<p class='hero-subtitle' style='text-align:center; margin-bottom:10px;'>Your personal book recommendation companion</p>"
+            "<p class='hero-desc' style='text-align:center; color:#A9B8A5; max-width:560px; margin:0 auto;'>"
             "Discover your next favorite read based on your mood, favorite genres, "
             "and books you already love.</p>",
             unsafe_allow_html=True
@@ -209,20 +220,18 @@ def show_welcome_page():
                 with st.container(border=True):
                     st.markdown(
                         f"<div class='feature-icon'>{icon}</div>"
-                        f"<p style='text-align:center; font-weight:700; font-size:1.05rem; margin:4px 0;'>{title}</p>"
-                        f"<p style='text-align:center; font-size:0.85rem; color:#A9B8A5;'>{desc}</p>",
+                        f"<p style='text-align:center; font-weight:700; font-size:1.15rem; margin:4px 0;'>{title}</p>"
+                        f"<p style='text-align:center; font-size:0.95rem; color:#A9B8A5;'>{desc}</p>",
                         unsafe_allow_html=True
                     )
 
         st.write("")
         st.write("")
-        _, mid, _ = st.columns([1, 1, 1])
+        _, mid, _ = st.columns([1, 1.2, 1])
         with mid:
             if st.button("Get Started", use_container_width=True):
                 st.session_state.page = "login"
                 st.rerun()
-
-
 # ---------- Login Page ----------
 def show_login_page():
     st.write("")
@@ -339,39 +348,49 @@ def show_main_page():
 
 # ---------- History Page ----------
 def show_history_page():
-    st.title("🕘 Your Search History")
-    st.caption("This history is only kept for your current session.")
+    st.markdown("<h1 style='text-align:center;'>🕘 Your Search History</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<p style='text-align:center; color:#A9B8A5;'>This history is only kept for your current session.</p>",
+        unsafe_allow_html=True
+    )
+    st.write("")
 
-    if st.session_state.search_history:
-        for h in reversed(st.session_state.search_history):
-            parts = []
-            if h["mood"]:
-                parts.append(f"mood: {h['mood']}")
-            if h["genre"]:
-                parts.append(f"genre: {h['genre']}")
-            if h["liked_books"]:
-                parts.append(f"liked books: {', '.join(h['liked_books'])}")
-            st.write("🔎 " + " | ".join(parts))
-    else:
-        st.info("No searches yet this session.")
-
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.session_state.search_history:
+            for h in reversed(st.session_state.search_history):
+                parts = []
+                if h["mood"]:
+                    parts.append(f"🎭 {h['mood']}")
+                if h["genre"]:
+                    parts.append(f"🏷️ {h['genre']}")
+                if h["liked_books"]:
+                    parts.append(f"❤️ {', '.join(h['liked_books'])}")
+                with st.container(border=True):
+                    st.markdown(" &nbsp;|&nbsp; ".join(parts), unsafe_allow_html=True)
+        else:
+            st.info("No searches yet this session.")
 
 # ---------- Settings Page ----------
 def show_settings_page():
-    st.title("⚙️ Settings")
+    st.markdown("<h1 style='text-align:center;'>⚙️ Settings</h1>", unsafe_allow_html=True)
+    st.write("")
 
-    st.subheader("Account")
-    st.write(f"**Signed in as:** {st.session_state.user_email}")
-    st.caption("This is a session-only account. A permanent account system is planned for a future version.")
-
-    st.divider()
-
-    if st.button("🚪 Log Out", key="settings_logout"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
-
-
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    with col2:
+        with st.container(border=True):
+            st.markdown("<p style='font-weight:700; font-size:1.1rem;'>Account</p>", unsafe_allow_html=True)
+            st.markdown(f"<p>Signed in as <b>{st.session_state.user_email}</b></p>", unsafe_allow_html=True)
+            st.markdown(
+                "<p style='color:#A9B8A5; font-size:0.9rem;'>This is a session-only account. "
+                "A permanent account system is planned for a future version.</p>",
+                unsafe_allow_html=True
+            )
+            st.write("")
+            if st.button("🚪 Log Out", key="settings_logout", use_container_width=True):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
 # ---------- Book Detail Page ----------
 def show_book_details():
     title = st.session_state.selected_book
