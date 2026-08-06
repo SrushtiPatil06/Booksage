@@ -12,9 +12,11 @@ from recommender import (
 import recommender
 
 st.set_page_config(page_title="BookSage", page_icon="📚", layout="wide")
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Nunito+Sans:wght@400;600&display=swap');
+
 html, body, [class*="css"] {
     font-family: 'Nunito Sans', sans-serif;
     color: #D8E0D3;
@@ -86,6 +88,11 @@ p, span, label, .stMarkdown, .stCaption {
     width: 100%;
     border: 1px solid #6B8068;
 }
+
+[data-testid="stSidebar"] .stButton > button:hover {
+    background-color: #6B8068;
+}
+
 [data-testid="stHeader"] {
     background-color: #1F2E23;
 }
@@ -93,8 +100,31 @@ p, span, label, .stMarkdown, .stCaption {
 [data-testid="stToolbar"] {
     background-color: #1F2E23;
 }
-[data-testid="stSidebar"] .stButton > button:hover {
-    background-color: #6B8068;
+
+.hero-title {
+    font-size: 3.2rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+}
+
+.hero-underline {
+    width: 60px;
+    height: 4px;
+    background-color: #8FA888;
+    margin: 0.8rem auto 1.5rem;
+    border-radius: 2px;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #2A3D2F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 10px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -116,6 +146,7 @@ if "selected_book" not in st.session_state:
     st.session_state.selected_book = None
 if "selected_author" not in st.session_state:
     st.session_state.selected_author = None
+
 
 # ---------- Sidebar Navigation ----------
 def show_sidebar():
@@ -149,25 +180,40 @@ def show_sidebar():
                 del st.session_state[key]
             st.rerun()
 
+
 # ---------- Welcome Page ----------
 def show_welcome_page():
     st.write("")
-    st.write("")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<h1 style='text-align: center;'>📚 BookSage</h1>", unsafe_allow_html=True)
         st.markdown(
-            "<p style='text-align: center; font-size: 1.1rem;'>Your personal book recommendation companion</p>",
+            "<p class='hero-title' style='text-align:center; margin-bottom:0;'>📚 BookSage</p>"
+            "<div class='hero-underline'></div>"
+            "<p style='text-align:center; font-size:1.2rem; font-weight:600; margin-bottom:4px;'>Your personal book recommendation companion</p>"
+            "<p style='text-align:center; color:#A9B8A5; font-size:1rem; max-width:480px; margin:0 auto;'>"
+            "Discover your next favorite read based on your mood, favorite genres, "
+            "and books you already love.</p>",
             unsafe_allow_html=True
         )
         st.write("")
-        st.markdown(
-            "<p style='text-align: center; color: #A9B8A5;'>"
-            "Discover your next favorite read based on your mood, "
-            "favorite genres, and books you already love."
-            "</p>",
-            unsafe_allow_html=True
-        )
+        st.write("")
+
+        f1, f2, f3 = st.columns(3)
+        features = [
+            (f1, "🎭", "By Mood", "Thrilling, cozy, adventurous, and more"),
+            (f2, "🏷️", "By Genre", "Top-rated picks in your favorite category"),
+            (f3, "❤️", "By Books You Love", "Tell us up to 5 favorites, we'll find similar reads"),
+        ]
+        for col, icon, title, desc in features:
+            with col:
+                with st.container(border=True):
+                    st.markdown(
+                        f"<div class='feature-icon'>{icon}</div>"
+                        f"<p style='text-align:center; font-weight:700; font-size:1.05rem; margin:4px 0;'>{title}</p>"
+                        f"<p style='text-align:center; font-size:0.85rem; color:#A9B8A5;'>{desc}</p>",
+                        unsafe_allow_html=True
+                    )
+
         st.write("")
         st.write("")
         _, mid, _ = st.columns([1, 1, 1])
@@ -207,7 +253,8 @@ def show_login_page():
             if st.button("← Back", use_container_width=True):
                 st.session_state.page = "welcome"
                 st.rerun()
-                
+
+
 # ---------- Main Page ----------
 def show_main_page():
     st.title("📚 BookSage")
@@ -236,39 +283,38 @@ def show_main_page():
         book = st.text_input(f"Book {i+1}", key=f"liked_book_{i}")
         if book:
             liked_books_input.append(book)
+
     sort_by = st.selectbox(
         "Sort results by",
         options=["Best Match", "Rating", "Popularity", "Similarity"]
     )
+
     if st.button("Get Recommendations"):
-        mood_param = None if selected_mood == "None" else selected_mood
-        genre_param = None if selected_genre == "None" else selected_genre
-        liked_param = liked_books_input if liked_books_input else None
+        with st.spinner("Finding your next great read..."):
+            mood_param = None if selected_mood == "None" else selected_mood
+            genre_param = None if selected_genre == "None" else selected_genre
+            liked_param = liked_books_input if liked_books_input else None
 
-        
-        results = get_combined_recommendations(
-            mood=mood_param,
-            genre=genre_param,
-            liked_titles=liked_param,
-            sort_by=sort_by
-        )
+            results = get_combined_recommendations(
+                mood=mood_param,
+                genre=genre_param,
+                liked_titles=liked_param,
+                sort_by=sort_by
+            )
 
-        if results is None or results.empty:
-            st.warning("No recommendations found. Try different options.")
-            
-            if recommender.LAST_API_ERROR:
-                st.error(f"⚠️ {recommender.LAST_API_ERROR}")
-            st.session_state.current_results = None
-        else:
-            st.session_state.search_history.append({
-                "mood": mood_param,
-                "genre": genre_param,
-                "liked_books": liked_param
-            })
-            st.session_state.current_results = results
-            
+            if results is None or results.empty:
+                st.warning("No recommendations found. Try different options.")
+                if recommender.LAST_API_ERROR:
+                    st.error(f"⚠️ {recommender.LAST_API_ERROR}")
+                st.session_state.current_results = None
+            else:
+                st.session_state.search_history.append({
+                    "mood": mood_param,
+                    "genre": genre_param,
+                    "liked_books": liked_param
+                })
+                st.session_state.current_results = results
 
-    # Display results OUTSIDE the button block, so they persist across reruns
     if st.session_state.current_results is not None:
         results = st.session_state.current_results
         st.subheader("Your Recommendations")
@@ -290,8 +336,8 @@ def show_main_page():
                         st.session_state.selected_book = row['title']
                         st.rerun()
 
-  
-    # ---------- History Page ----------
+
+# ---------- History Page ----------
 def show_history_page():
     st.title("🕘 Your Search History")
     st.caption("This history is only kept for your current session.")
@@ -309,6 +355,7 @@ def show_history_page():
     else:
         st.info("No searches yet this session.")
 
+
 # ---------- Settings Page ----------
 def show_settings_page():
     st.title("⚙️ Settings")
@@ -323,6 +370,7 @@ def show_settings_page():
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
 
 # ---------- Book Detail Page ----------
 def show_book_details():
@@ -355,6 +403,8 @@ def show_book_details():
         if st.button(f"View author: {book['authors']}"):
             st.session_state.selected_author = book['authors']
             st.rerun()
+
+
 # ---------- Author Detail Page ----------
 def show_author_details():
     author = st.session_state.selected_author
@@ -378,7 +428,7 @@ def show_author_details():
             if pd.notna(row['cover_url']):
                 st.image(row['cover_url'], use_container_width=True)
             st.markdown(f"**{row['title']}**")
-            st.write(f"⭐ {row['average_rating']}") 
+            st.write(f"⭐ {row['average_rating']}")
 
 
 # ---------- Router ----------
