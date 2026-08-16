@@ -97,6 +97,8 @@ def get_combined_recommendations(mood=None, genre=None, liked_titles=None, num_r
                 liked_vectors_list.append(tfidf_matrix[idx])
             else:
                 description = fetch_description(title, "")
+                st.write("DEBUG - description fetched:", description)
+                st.write("DEBUG - LAST_API_ERROR:", LAST_API_ERROR)
                 if description:
                     cleaned = preprocess_text(description)
                     new_vector = tfidf.transform([cleaned])
