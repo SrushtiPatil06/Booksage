@@ -24,7 +24,7 @@ BookSage is a content-based book recommendation system built as a capstone proje
 
 ## Project Structure
 
-
+````
 
 booksage/
 ├── app.py               # Streamlit UI and page routing
