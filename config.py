@@ -1,8 +1,11 @@
 import os
+import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv()
-api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
+
+api_key = st.secrets.get("GOOGLE_BOOKS_API_KEY", os.getenv("GOOGLE_BOOKS_API_KEY"))
+
 API_AVAILABLE = api_key is not None and api_key.strip() != ""
 
 mood_map = {
