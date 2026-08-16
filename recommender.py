@@ -34,7 +34,7 @@ def fetch_description(title, author):
         return None
 
     query = f"{title} {author}"
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&key={api_key}"
+    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&country=US&key={api_key}"
     try:
         response = requests.get(url, timeout=5)
         st.write("DEBUG - status code:", response.status_code)
