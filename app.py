@@ -12,7 +12,7 @@ from recommender import (
 import recommender
 
 st.set_page_config(page_title="BookSage", page_icon="📚", layout="wide")
-
+st.write("DEBUG - API_AVAILABLE:", API_AVAILABLE)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Nunito+Sans:wght@400;600&display=swap');
