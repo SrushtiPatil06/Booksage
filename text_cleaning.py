@@ -1,16 +1,24 @@
 import re
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk import pos_tag
 from nltk.corpus import wordnet
 
+# Download required NLTK data (safe to call every time, skips if already present)
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
+nltk.download('punkt', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
+nltk.download('averaged_perceptron_tagger_eng', quiet=True)
+
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
 def get_wordnet_pos(tag):
-   
-    #Converts NLTK's POS tag format into the format WordNetLemmatizer expects.
-   
+    """
+    Converts NLTK's POS tag format into the format WordNetLemmatizer expects.
+    """
     if tag.startswith('J'):
         return wordnet.ADJ
     elif tag.startswith('V'):
