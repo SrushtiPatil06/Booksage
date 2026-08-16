@@ -37,8 +37,7 @@ def fetch_description(title, author):
     url = f"https://www.googleapis.com/books/v1/volumes?q={query}&country=US&key={api_key}"
     try:
         response = requests.get(url, timeout=5)
-        st.write("DEBUG - status code:", response.status_code)
-        st.write("DEBUG - raw response:", response.text[:500])
+        
         data = response.json()
         if 'items' in data:
             for item in data['items']:
@@ -99,8 +98,7 @@ def get_combined_recommendations(mood=None, genre=None, liked_titles=None, num_r
                 liked_vectors_list.append(tfidf_matrix[idx])
             else:
                 description = fetch_description(title, "")
-                st.write("DEBUG - description fetched:", description)
-                st.write("DEBUG - LAST_API_ERROR:", LAST_API_ERROR)
+                
                 if description:
                     cleaned = preprocess_text(description)
                     new_vector = tfidf.transform([cleaned])
